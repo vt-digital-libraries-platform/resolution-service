@@ -60,6 +60,32 @@ Resources:
           Parameters:
             Location: './api.yaml'
 
+  ##   CloudFront distribution
+  CloudFrontDistro:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: Name Resolution CDN
+        DefaultCacheBehavior:
+          AllowedMethods: ["GET", "HEAD"]
+          CachedMethods: ["GET", "HEAD"]
+          Compress: true
+          DefaultTTL: 0
+          ForwardedValues:
+            Headers:
+            - Origin
+            QueryString: false
+          TargetOriginId: "NameResolutionAPIGW"
+          ViewerProtocolPolicy: redirect-to-https
+        Enabled: true
+        Origins:
+          - CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+            DomainName: !Sub ${NameResolutionApiGateway}.execute-api.${AWS::Region}.amazonaws.com
+            Id: "NameResolutionAPIGW"
+            OriginPath: /Prod
+
+
 ###################################################################################################
 ##   Template outputs                                                                            ##
 ###################################################################################################
