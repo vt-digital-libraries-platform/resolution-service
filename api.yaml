@@ -1,0 +1,50 @@
+openapi: "3.0.1"
+info:
+  title: "URL Shortener API"
+  version: "1.0.0"
+
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+  params:
+    validateRequestBody: false
+    validateRequestParameters: true
+  body:
+    validateRequestBody: true
+    validateRequestParameters: false
+
+paths:
+  /{arklabel}/53696/{shortid}:
+    ## URL redirector
+    get:
+      summary: Get a url by ID and redirect
+      # x-amazon-apigateway-request-validator: params
+      # parameters:
+      #   - in: path
+      #     name: shortid
+      #     schema:
+      #       type: string
+      #     required: true
+      #     description: Short link ID for full URL
+      responses:
+        "301":
+          description: "301 redirect"
+          headers:
+            Location:
+              type: "string"
+      ## API Gateway Integration
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NameResolutionFunction.Arn}/invocations' #NameResolutionFunction.Arn
+        httpMethod: "POST"
+        requestTemplates:
+          application/json: "{\"arklabel\": \"ark:\", \"short_id\": \"$input.params('shortid')\"}"
+        passthroughBehavior: "when_no_templates"
+        responses:
+          "":
+            statusCode: "301"
+            responseParameters:
+              method.response.header.Location: "integration.response.body.location"
+        type: aws
+

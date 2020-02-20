@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An AWS Lambda function with API Gateway that receives a short URL, finds a record in the DynamoDB table, redirects user to the long URL.
+
+###################################################################################################
+##   Template Parameters                                                                         ##
+###################################################################################################
+
+Parameters: 
+    TargetTableName:
+      Type: String
+    Image404:
+      Type: String
+    Region:
+      Type: String
+
+###################################################################################################
+##   Template Resources                                                                          ##
+###################################################################################################
+
+Resources:
+  ##   Lambda Function
+  NameResolutionFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.7
+      CodeUri: .
+      Description: An AWS Lambda function with API Gateway that receives a short URL, finds a record in the DynamoDB table, redirects user to the long URL.
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TargetTableName
+      Environment:
+        Variables:
+          DEBUG: 1
+          TargetTable: !Ref TargetTableName
+          Region: !Ref Region
+          Image404: !Ref Image404
+      Events:
+        NameResolutionApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref NameResolutionApiGateway
+            Path: /{arklabel}/53696/{shortid}
+            Method: GET
+
+  ##   API Gateway
+  NameResolutionApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: Name Resolution Api Gateway
+      StageName: Prod
+      EndpointConfiguration: Edge
+      TracingEnabled: true
+      DefinitionBody:
+        'Fn::Transform':
+          Name: 'AWS::Include'
+          Parameters:
+            Location: './api.yaml'
+
+###################################################################################################
+##   Template outputs                                                                            ##
+###################################################################################################
+
+Outputs:
+  NameResolutionApiGateway:
+    Description: 'API Gateway endpoint URL for Prod stage for Name Resolution function'
+    Value: !Sub 'https://${NameResolutionApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/{arklabel}/53696/{shortid}'
+  NameResolutionApiGatewayRestApiId:
+    Description: 'API Gateway ARN for Name Resolution API Gateway'
+    Value: !Ref NameResolutionApiGateway
+    Export:
+      Name: NameResolutionApiGateway-RestApiId
+  NameResolutionApiGatewayRootResourceId:
+    Value: !GetAtt NameResolutionApiGateway.RootResourceId
+    Export:
+      Name: NameResolutionApiGateway-RootResourceId
