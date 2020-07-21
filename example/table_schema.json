@@ -1,0 +1,55 @@
+{
+    "Table": {
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "long_url",
+                "AttributeType": "S"
+            },
+            {
+                "AttributeName": "short_id",
+                "AttributeType": "S"
+            }
+        ],
+        "TableName": "resolutionservice",
+        "KeySchema": [
+            {
+                "AttributeName": "short_id",
+                "KeyType": "HASH"
+            }
+        ],
+        "TableStatus": "ACTIVE",
+        "CreationDateTime": "2019-08-20T08:56:45.190000-04:00",
+        "ProvisionedThroughput": {
+            "NumberOfDecreasesToday": 0,
+            "ReadCapacityUnits": 5,
+            "WriteCapacityUnits": 5
+        },
+        "TableSizeBytes": 15351,
+        "ItemCount": 89,
+        "TableArn": "arn:aws:dynamodb:us-east-1:xxxx:table/resolutionservice",
+        "TableId": "xxxx",
+        "GlobalSecondaryIndexes": [
+            {
+                "IndexName": "long_url-index",
+                "KeySchema": [
+                    {
+                        "AttributeName": "long_url",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "Projection": {
+                    "ProjectionType": "ALL"
+                },
+                "IndexStatus": "ACTIVE",
+                "ProvisionedThroughput": {
+                    "NumberOfDecreasesToday": 0,
+                    "ReadCapacityUnits": 1,
+                    "WriteCapacityUnits": 1
+                },
+                "IndexSizeBytes": 15351,
+                "ItemCount": 89,
+                "IndexArn": "arn:aws:dynamodb:us-east-1:xxxx:table/resolutionservice/index/long_url-index"
+            }
+        ]
+    }
+}
