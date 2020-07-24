@@ -1,12 +1,19 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
-Description: An AWS Lambda function with API Gateway that receives a short URL, finds a record in the DynamoDB table, redirects user to the long URL.
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  resolution-service
+
+  SAM Template for resolution-service
+
+Globals:
+  Function:
+    Timeout: 30
 
 ###################################################################################################
 ##   Template Parameters                                                                         ##
 ###################################################################################################
 
-Parameters: 
+Parameters:
     TargetTableName:
       Type: String
     Image404:
@@ -21,14 +28,13 @@ Parameters:
 Resources:
   ##   Lambda Function
   NameResolutionFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: AWS::Serverless::Function 
     Properties:
-      Handler: lambda_function.lambda_handler
+      CodeUri: apps/
+      Handler: app.lambda_handler
       Runtime: python3.7
-      CodeUri: .
       Description: An AWS Lambda function with API Gateway that receives a short URL, finds a record in the DynamoDB table, redirects user to the long URL.
       MemorySize: 128
-      Timeout: 10
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TargetTableName
@@ -39,15 +45,15 @@ Resources:
           Region: !Ref Region
           Image404: !Ref Image404
       Events:
-        NameResolutionApi:
+        ResolutionServiceApi:
           Type: Api
           Properties:
-            RestApiId: !Ref NameResolutionApiGateway
+            RestApiId: !Ref ResolutionServiceApiGateway
             Path: /{arklabel}/53696/{shortid}
             Method: GET
 
   ##   API Gateway
-  NameResolutionApiGateway:
+  ResolutionServiceApiGateway:
     Type: AWS::Serverless::Api
     Properties:
       Name: Name Resolution Api Gateway
@@ -75,31 +81,32 @@ Resources:
             Headers:
             - Origin
             QueryString: false
-          TargetOriginId: "NameResolutionAPIGW"
+          TargetOriginId: "ResolutionServiceAPIGW"
           ViewerProtocolPolicy: redirect-to-https
         Enabled: true
         Origins:
           - CustomOriginConfig:
               OriginProtocolPolicy: https-only
-            DomainName: !Sub ${NameResolutionApiGateway}.execute-api.${AWS::Region}.amazonaws.com
-            Id: "NameResolutionAPIGW"
+            DomainName: !Sub ${ResolutionServiceApiGateway}.execute-api.${AWS::Region}.amazonaws.com
+            Id: "ResolutionServiceAPIGW"
             OriginPath: /Prod
 
-
-###################################################################################################
-##   Template outputs                                                                            ##
-###################################################################################################
-
 Outputs:
-  NameResolutionApiGateway:
+  NameResolutionFunction:
+    Description: "Name Resolution Lambda Function ARN"
+    Value: !GetAtt NameResolutionFunction.Arn
+  NameResolutionFunctionIamRole:
+    Description: "Implicit IAM Role created for Name Resolution function"
+    Value: !GetAtt NameResolutionFunctionRole.Arn
+  ResolutionServiceApiGateway:
     Description: 'API Gateway endpoint URL for Prod stage for Name Resolution function'
-    Value: !Sub 'https://${NameResolutionApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/{arklabel}/53696/{shortid}'
-  NameResolutionApiGatewayRestApiId:
+    Value: !Sub 'https://${ResolutionServiceApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/{arklabel}/53696/{shortid}'
+  ResolutionServiceApiGatewayRestApiId:
     Description: 'API Gateway ARN for Name Resolution API Gateway'
-    Value: !Ref NameResolutionApiGateway
+    Value: !Ref ResolutionServiceApiGateway
     Export:
-      Name: NameResolutionApiGateway-RestApiId
-  NameResolutionApiGatewayRootResourceId:
-    Value: !GetAtt NameResolutionApiGateway.RootResourceId
+      Name: ResolutionServiceApiGateway-RestApiId
+  ResolutionServiceApiGatewayRootResourceId:
+    Value: !GetAtt ResolutionServiceApiGateway.RootResourceId
     Export:
-      Name: NameResolutionApiGateway-RootResourceId
+      Name: ResolutionServiceApiGateway-RootResourceId
