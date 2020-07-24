@@ -17,7 +17,7 @@ The application uses several AWS resources, including Lambda functions and an AP
 * [Sample record](example/record.json)
 
 
-### Deploy FixityEventRule application using CloudFormation stack
+### Deploy VTDLP Resolution Service application using CloudFormation stack
 #### Step 1: Launch CloudFormation stack
 [![Launch Stack](https://cdn.rawgit.com/buildkite/cloudformation-launch-stack-button-svg/master/launch-stack.svg)](https://console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/new?&templateURL=https://vtdlp-dev-cf.s3.amazonaws.com/7db2bd3b29f387d3ea3639726f7e535c.template)
 
