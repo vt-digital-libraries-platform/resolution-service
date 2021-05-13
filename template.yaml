@@ -61,10 +61,48 @@ Resources:
       EndpointConfiguration: Edge
       TracingEnabled: true
       DefinitionBody:
-        'Fn::Transform':
-          Name: 'AWS::Include'
-          Parameters:
-            Location: './api.yaml'
+        openapi: "3.0.1"
+        info:
+          title: "URL Shortener API"
+          version: "1.0.0"
+
+        x-amazon-apigateway-request-validators:
+          all:
+            validateRequestBody: true
+            validateRequestParameters: true
+          params:
+            validateRequestBody: false
+            validateRequestParameters: true
+          body:
+            validateRequestBody: true
+            validateRequestParameters: false
+
+        paths:
+          /{arklabel}/53696/{shortid}:
+            ## URL redirector
+            get:
+              summary: Get a url by ID and redirect
+              responses:
+                "301":
+                  description: "301 redirect"
+                  headers:
+                    Location:
+                      type: "string"
+              ## API Gateway Integration
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NameResolutionFunction.Arn}/invocations' #NameResolutionFunction.Arn
+                httpMethod: "POST"
+                requestTemplates:
+                  application/json: "{\"arklabel\": \"ark:\", \"short_id\": \"$input.params('shortid')\"}"
+                passthroughBehavior: "when_no_templates"
+                responses:
+                  "":
+                    statusCode: "301"
+                    responseParameters:
+                      method.response.header.Location: "integration.response.body.location"
+                type: aws
+
 
   ##   CloudFront distribution
   CloudFrontDistro:
@@ -102,11 +140,9 @@ Outputs:
     Description: 'API Gateway endpoint URL for Prod stage for Name Resolution function'
     Value: !Sub 'https://${ResolutionServiceApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/{arklabel}/53696/{shortid}'
   ResolutionServiceApiGatewayRestApiId:
-    Description: 'API Gateway ARN for Name Resolution API Gateway'
+    Description: 'API Gateway Rest API Id for Name Resolution API Gateway'
     Value: !Ref ResolutionServiceApiGateway
-    Export:
-      Name: ResolutionServiceApiGateway-RestApiId
   ResolutionServiceApiGatewayRootResourceId:
+    Description: 'API Gateway Root Resource Id for Name Resolution API Gateway'
     Value: !GetAtt ResolutionServiceApiGateway.RootResourceId
-    Export:
-      Name: ResolutionServiceApiGateway-RootResourceId
+
