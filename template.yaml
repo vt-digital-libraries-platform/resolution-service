@@ -56,7 +56,7 @@ Resources:
   ResolutionServiceApiGateway:
     Type: AWS::Serverless::Api
     Properties:
-      Name: !Join [ "-", [ "Resolution Service API-", !Ref TargetTableName] ]
+      Name: !Join [ "-", [ "Resolution Service API", !Ref TargetTableName] ]
       StageName: Prod
       EndpointConfiguration: Edge
       TracingEnabled: true
