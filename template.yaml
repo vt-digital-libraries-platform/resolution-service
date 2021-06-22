@@ -56,7 +56,6 @@ Resources:
   ResolutionServiceApiGateway:
     Type: AWS::Serverless::Api
     Properties:
-      Name: Name Resolution Api Gateway
       StageName: Prod
       EndpointConfiguration: Edge
       TracingEnabled: true
@@ -64,7 +63,7 @@ Resources:
         openapi: "3.0.1"
         info:
           title: "URL Shortener API"
-          version: "1.0.0"
+          version: "1.0.2"
 
         x-amazon-apigateway-request-validators:
           all:
