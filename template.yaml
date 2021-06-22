@@ -56,14 +56,15 @@ Resources:
   ResolutionServiceApiGateway:
     Type: AWS::Serverless::Api
     Properties:
+      Name: !Join [ "-", [ "Resolution Service API-", !Ref TargetTableName] ]
       StageName: Prod
       EndpointConfiguration: Edge
       TracingEnabled: true
       DefinitionBody:
         openapi: "3.0.1"
         info:
-          title: "URL Shortener API"
-          version: "1.0.2"
+          title: "Resolution Service API"
+          version: "1.0.3"
 
         x-amazon-apigateway-request-validators:
           all:
