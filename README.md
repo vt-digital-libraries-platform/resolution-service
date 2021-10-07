@@ -79,6 +79,16 @@ curl https://xxxxx.execute-api.us-east-1.amazonaws.com/Prod/ark:/53696/kr10gt01
 
 ps. Setting up custom domain names (e.g. http://idn.lib.vt.edu ) for REST APIs. [Guide](https://docs.aws.amazon.com/apigateway/latest/developerguide/how-to-custom-domains.html)
 
+## Tests
+
+Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests. You must have a env file: [custom_pytest.ini](custom_pytest.ini)
+
+```bash
+lambdatest$ pip install -r tests/requirements.txt --user
+# unit test
+lambdatest$ python -m pytest tests/unit -v -c custom_pytest.ini
+```
+
 ## Cleanup
 
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
